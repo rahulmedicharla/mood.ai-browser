@@ -1,10 +1,25 @@
+'use client'
+import { viewLogin, viewSignUp } from '@/redux/authSlice'
 import Link from 'next/link'
+import { useDispatch } from 'react-redux'
 
 export default function Landing(){
+
+    const dispatch = useDispatch()
+
+    const goToSignup = () => {
+        dispatch(viewSignUp())
+    }
+
+    const goToLogin = () => {
+        dispatch(viewLogin())
+    }
+
     return (
         <div>
-            <Link href = "/signup">Signup</Link>
-            <Link href = "/login">Login</Link>
+            <h1> Landing</h1>
+            <button onClick={goToSignup}>Signup</button>
+            <button onClick={goToLogin}>Login</button>            
         </div>
     )
 }
