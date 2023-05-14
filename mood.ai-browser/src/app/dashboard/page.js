@@ -1,14 +1,14 @@
 'use client'
-import { logout } from "@/redux/authSlice"
-import { useDispatch } from "react-redux"
 import HomePartial from "../homePartial/page"
 import Webcam from "react-webcam"
 import { useRef, useState } from "react"
+import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 
 export default function Dashboard({userToken, email}){
     const webcamRef = useRef(null)
     const [recording, setRecording] = useState(false)
-    const [recordedVideo, setRecordedVideo] = useState(null)
+
+    const storage = getStorage()
 
     const startRecording = () => {
         setRecording(true);
@@ -22,40 +22,36 @@ export default function Dashboard({userToken, email}){
           }
         });
       
-        mediaRecorder.addEventListener('stop', () => {
+        mediaRecorder.addEventListener('stop', async () => {
           const recordedBlob = new Blob(chunks, { type: 'video/webm' });
-          setRecordedVideo(recordedBlob);
+
+          const storageRef = ref(storage, 'recordings/' + userToken + '/video.webm')
+          await uploadBytes(storageRef, recordedBlob)
+
+          const downloadUrl = await getDownloadURL(storageRef)
+          console.log(downloadUrl)
+
           setRecording(false);
         });
       
         mediaRecorder.start();
         setTimeout(() => {
           mediaRecorder.stop();
-        }, 7000);
+        }, 8000);
       };
       
-      const stopRecording = () => {
-        setRecording(false);
-      };
-      
-    
     return (
         <div>
             <HomePartial email={email}></HomePartial>
             <h1>Home</h1>
             <Webcam ref={webcamRef} audio={true} video={true}></Webcam>
 
-            {recording ? (
-                <button onClick={stopRecording}>Stop Recording</button>
-            ) : (
-                <button onClick={startRecording}>Start Recording</button>
-            )}
-
-            {recordedVideo && (
-                <video controls>
-                    <source src={URL.createObjectURL(recordedVideo)} type="video/webm" />
-                </video>
-            )}
+            {recording == false ? 
+                (<button onClick={startRecording}>Start Recording</button>):(
+                    <label>Recording</label>
+                )
+            }
+            
         </div>
     )
 }
