@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { getFirestore, doc, setDoc } from "firebase/firestore"
 
 const initialState = {
     isLoggedIn: false,
@@ -7,12 +8,23 @@ const initialState = {
     email: null,
     isSignUp: false,
     isLogin: false, 
+    isMyArt: false,
+}
+
+const createNewDoc = async(uid) => {
+    const db = getFirestore();
+    await setDoc(doc(db, "users", uid), {
+        image_links: []
+    })
 }
 
 export const signup = createAsyncThunk("/auth/signup", async(userInfo) => {
     const auth = getAuth();
     try{
         const user = await createUserWithEmailAndPassword(auth, userInfo.email, userInfo.password);
+
+        await createNewDoc(user.user.uid)
+
         const data = {
             isLoggedIn: true,
             userToken: user.user.uid,
@@ -79,6 +91,9 @@ const authSlice = createSlice({
             state.isSignUp = false
             state.isLogin = false
         },
+        viewIsMyArt: (state, action) => {
+            state.isMyArt = action.payload.isMyArt
+        }
     },
     extraReducers: (builder) => {
         builder.addCase(signup.fulfilled, (state, action) => {
@@ -105,12 +120,13 @@ const authSlice = createSlice({
     }
 })
 
-export const {viewLanding, viewLogin, viewSignUp} = authSlice.actions
+export const {viewLanding, viewLogin, viewSignUp, viewIsMyArt} = authSlice.actions
 
 export const selectIsLoggedIn = (state) => state.userAuth.isLoggedIn
 export const selectUserToken = (state) => state.userAuth.userToken
 export const selectEmail = (state) => state.userAuth.email
 export const selectIsSignUp = (state) => state.userAuth.isSignUp
 export const selectIsLogin = (state) => state.userAuth.isLogin
+export const selectIsMyArt = (state) => state.userAuth.isMyArt
 
 export default authSlice.reducer
