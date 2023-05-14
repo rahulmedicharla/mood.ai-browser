@@ -1,0 +1,74 @@
+.vContainer{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.vCenter{
+    margin-top: 10%;
+}
+
+.hContainer{
+    display: flex;
+    column-gap: 100px;
+    justify-content: space-between;
+}
+
+.text{
+    color: darkslategrey;
+    font-family:'Century Gothic', Times, serif
+}
+
+.title{
+    font-size: 125px;
+}
+
+.subTitle{
+    font-size: 50px;
+}
+
+.landing{
+    margin-top: 30px  
+}
+
+.button{
+    font-size: x-large;
+    padding: 20px 40px;
+    border: 3px solid darkgray;
+    border-radius: 10px;
+    color: darkslategrey;
+}
+
+button:hover{
+    cursor: pointer;
+}
+
+.navButton{
+    font-size: medium;
+    padding: 10px 20px;
+    border: 3px solid darkgray;
+    border-radius: 10px;
+    color: darkslategrey;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+
+.authNav{
+    display: flex;
+    flex-direction: row;
+    width: 100vw;
+}
+
+.formText{
+    font-size: large;
+    margin-top: 15px;
+}
+
+.formInput{
+    background-color: #c5bebe;
+    border: 3px solid black;
+    padding: 7px 10px;
+    color: #fffceb;
+}
