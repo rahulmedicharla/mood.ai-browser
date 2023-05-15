@@ -14,7 +14,8 @@ const initialState = {
 const createNewDoc = async(uid) => {
     const db = getFirestore();
     await setDoc(doc(db, "users", uid), {
-        image_links: []
+        image_links: [],
+        openaikey: ''
     })
 }
 

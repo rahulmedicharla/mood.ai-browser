@@ -15,6 +15,31 @@
     justify-content: space-between;
 }
 
+.hMainContainer{
+    display: flex;
+    flex-direction: row;
+}
+
+.imgContainer{
+    margin-top: 75px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(auto-fill, 1fr);
+    grid-row-gap: .5em;
+    grid-column-gap: 1em;
+}
+
+.recordingContainer{
+    margin-left: 145px;
+}
+
+.apikeyContainer{
+    border: 3px solid darkslategray;
+    border-radius: 10px;
+    margin-left: 15px;
+    padding: 10px 20px;
+}
+
 .text{
     color: darkslategrey;
     font-family:'Century Gothic', Times, serif
@@ -84,4 +109,9 @@ button:hover{
     border: 3px solid black;
     padding: 7px 10px;
     color: #fffceb;
+}
+
+.bold{
+    font-weight: bolder;
+    font-size: x-large;
 }
