@@ -1,7 +1,7 @@
 'use client'
 //firebase imports
 import {initializeApp } from 'firebase/app'
-import { initializeAuth } from 'firebase/auth'
+import { initializeAuth, browserSessionPersistence } from 'firebase/auth'
 import { firebaseConfig } from '../../firebaseConfig'
 
 //react-redux imports
@@ -12,7 +12,9 @@ import { Provider } from 'react-redux'
 import App from './navigation/page'
 
 const app = initializeApp(firebaseConfig)
-initializeAuth(app, {})
+initializeAuth(app, {
+  persistence: browserSessionPersistence
+})
 
 export default function Home() {
   

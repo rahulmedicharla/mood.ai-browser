@@ -1,16 +1,16 @@
 'use client'
 import HomePartial from "../homePartial/page"
-import Webcam from "react-webcam"
-import { useEffect, useRef, useState } from "react"
+import Image from 'next/image'
+import { useEffect, useImperativeHandle, useRef, useState } from "react"
 import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import { useDispatch } from "react-redux"
-import { loadData, saveOpenAiKey, validateOpenAiKey } from "@/redux/firestoreSlice"
+import { generateArt, loadData, saveOpenAiKey, changeIsProcessing } from "@/redux/firestoreSlice"
 import { Formik, useFormik } from "formik"
 
-export default function Dashboard({userToken, email, image_links, actualOpenAiKey, shortApiKey}){
-    const webcamRef = useRef(null)
-    const [recording, setRecording] = useState(false)
+export default function Dashboard({userToken, email, new_images, openaikey, shortApiKey, isProcessing}){
     const storage = getStorage()
+    const dispatch = useDispatch()
+
 
     const formik = useFormik({
         initialValues:{
@@ -24,39 +24,34 @@ export default function Dashboard({userToken, email, image_links, actualOpenAiKe
         }
     })
 
+    const video_formik = useFormik({
+      initialValues:{
+        file: null
+      },
+      onSubmit: async(values) => {
+        if(openaikey != ""){
+          document.getElementById("generate_art_submit").disabled = true
+          dispatch(changeIsProcessing({
+            isProcessing: true
+          }))
 
-    const dispatch = useDispatch()
-
-    const startRecording = () => {
-        setRecording(true);
-        const chunks = [];
-        const options = { mimeType: 'video/webm' };
-      
-        const mediaRecorder = new MediaRecorder(webcamRef.current.stream, options);
-        mediaRecorder.addEventListener('dataavailable', (event) => {
-          if (event.data.size > 0) {
-            chunks.push(event.data);
-          }
-        });
-      
-        mediaRecorder.addEventListener('stop', async () => {
-          const recordedBlob = new Blob(chunks, { type: 'video/webm' });
-
-          const storageRef = ref(storage, 'recordings/' + userToken + '/video.webm')
-          await uploadBytes(storageRef, recordedBlob)
+          const storageRef = ref(storage, 'recordings/' + userToken + '.mp4')
+          await uploadBytes(storageRef, values.file)
 
           const downloadUrl = await getDownloadURL(storageRef)
-          console.log(downloadUrl)
+          const encodedURL = encodeURIComponent(downloadUrl)
 
-          setRecording(false);
-        });
-      
-        mediaRecorder.start();
-        setTimeout(() => {
-          mediaRecorder.stop();
-        }, 8000);
-      };
-
+          dispatch(generateArt({
+            userId: userToken,
+            downloadUrl: encodedURL,
+            apikey: openaikey
+          })) 
+        }else{
+          alert("Please enter valid openai api key")
+        }
+      }
+    })
+    
     useEffect(() => {
         dispatch(loadData(userToken))
     }, [])
@@ -65,7 +60,8 @@ export default function Dashboard({userToken, email, image_links, actualOpenAiKe
     return (
         <div>
             <HomePartial email={email}></HomePartial>
-
+            <div>
+            </div>
             <div className="hMainContainer">
                 <form className = "apikeyContainer" onSubmit={formik.handleSubmit}>
                     <div className="vContainer">
@@ -73,21 +69,51 @@ export default function Dashboard({userToken, email, image_links, actualOpenAiKe
                         <label className="text formText">Current Openai key: {shortApiKey}</label>
 
                         <label className="text formText">Change openai key:</label>
-                        <input className="text formText formInput" type='openaikey' id = "openaikey" name = "openaikey" onChange={formik.handleChange} value={formik.values.openaikey} required></input>    
+                        <input className="text formText formInput" type='openaikey' id = "openaikey" name = "openaikey" required onChange={formik.handleChange} value={formik.values.openaikey} ></input>    
                     
-                        <button className = "navButton formText" type = "submit">submit</button>
+                        <button className = "navButton formText" type = "submit">Submit</button>
                     </div>
                 </form>
-                <div className="recordingContainer vContainer">
-                  
-                  {recording == false ? 
-                      (<button className="navButton formText" onClick={startRecording}>Start Recording</button>):(
-                          <label className="text formText">Recording</label>
-                      )
-                  }
+                <div className="recordingContainer">
+                  <form onSubmit={video_formik.handleSubmit}>
+                    <div className="vContainer">
+                      <label className="text formText">Upload your file here</label>
+                      <label className="text formText">Please enter a short mp4 clip under 10mb in size</label>
+                      <input className="text formText formInput" id = "file" name="file" type="file" accept="video/mp4" required onChange={(event) => {
+                        if(event.currentTarget.files[0].size > 0 && event.currentTarget.files[0].size < (1024*1024*10)){
+                          video_formik.setFieldValue("file", event.currentTarget.files[0])
+                        }
+                        else{
+                          alert('Please enter a mp4 file less than 10mb in size')
+                          document.getElementById("file").value = ""
+                        }
+                      }}></input>
 
-                  <Webcam ref={webcamRef} audio={true} video="true"></Webcam>
+                      <button id="generate_art_submit" className="navButton formText" type="submit">Create Art!</button>
+
+                    </div>
+                  </form>
               </div>                
+            </div>
+            <div className="imageContainer vContainer">
+              {isProcessing ? (
+                <div className="vContainer">
+                  <label className="text formText">Generating art...</label>
+                  <label className="text formText">This is going to take a minute lol</label>
+                  <Image src="/loading.gif" width={150} height={150} alt="This might take a minute..."></Image>
+                </div>
+                ):(
+                <div className="vContainer">
+                  {new_images.length > 0 && new_images.map((image) => {
+                    return(
+                      <div key={image.link} className="vContainer">
+                        <label className="text formText bold">{image.title}</label>
+                        <img width="400px" src={image.link}></img>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
         </div>
     )

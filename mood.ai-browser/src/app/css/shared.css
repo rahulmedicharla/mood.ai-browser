@@ -3,6 +3,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
 }
 
 .vCenter{
@@ -18,6 +19,7 @@
 .hMainContainer{
     display: flex;
     flex-direction: row;
+    margin-top: 50px;
 }
 
 .imgContainer{
@@ -30,7 +32,10 @@
 }
 
 .recordingContainer{
-    margin-left: 145px;
+    margin-left: 200px;
+    border: 3px solid darkslategrey;
+    padding: 10px 20px;
+    border-radius: 10px;
 }
 
 .apikeyContainer{

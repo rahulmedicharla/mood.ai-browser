@@ -7,7 +7,7 @@ import Dashboard from "../dashboard/page"
 import Login from "../login/page"
 import Signup from "../signup/page"
 import MyArt from "../myArt/page"
-import { selectImageLinks, selectOpenAiKey, selectShortApiKey } from "@/redux/firestoreSlice"
+import { selectImageLinks, selectIsProcessing, selectNewImages, selectOpenAiKey, selectShortApiKey } from "@/redux/firestoreSlice"
 
 export default function App(){
     const isLoggedIn = useSelector(selectIsLoggedIn)
@@ -18,8 +18,10 @@ export default function App(){
     const isMyArt = useSelector(selectIsMyArt)
 
     const image_links = useSelector(selectImageLinks)
+    const new_images = useSelector(selectNewImages)
     const openaikey = useSelector(selectOpenAiKey)
     const shortApiKey = useSelector(selectShortApiKey)
+    const isProcessing = useSelector(selectIsProcessing)
     
     return isLoggedIn == false ? (
         isSignup == true ? (<Signup></Signup>):(
@@ -27,7 +29,7 @@ export default function App(){
         )
     ):(
         isMyArt == true ? (<MyArt image_links={image_links} email = {email}></MyArt>) : 
-            (<Dashboard userToken={userToken} email={email} image_links={image_links} openaikey={openaikey} shortApiKey={shortApiKey}></Dashboard>)
+            (<Dashboard userToken={userToken} email={email} new_images={new_images} openaikey={openaikey} shortApiKey={shortApiKey} isProcessing={isProcessing}></Dashboard>)
     ) 
           
 }
