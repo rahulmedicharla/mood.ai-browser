@@ -28,12 +28,6 @@ initializeAuth(app, {
   persistence: browserSessionPersistence
 })
 
-
-export const metadata = {
-  title: 'Mood AI',
-  description: 'Store memories as AI generated art',
-}
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
