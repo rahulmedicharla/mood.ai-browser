@@ -22,6 +22,17 @@
     margin-top: 50px;
 }
 
+.hImageContainer{
+    display: flex;
+    flex-direction: row;
+    margin-top: 20px;
+    align-items: center;
+}
+
+.images{
+    margin-right: 20px;
+}
+
 .imgContainer{
     margin-top: 75px;
     display: grid;

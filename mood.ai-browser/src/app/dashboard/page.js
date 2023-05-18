@@ -1,10 +1,10 @@
 'use client'
 import HomePartial from "../homePartial/page"
 import Image from 'next/image'
-import { useEffect, useImperativeHandle, useRef, useState } from "react"
+import { useEffect } from "react"
 import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage'
 import { useDispatch } from "react-redux"
-import { generateArt, loadData, saveOpenAiKey, changeIsProcessing } from "@/redux/firestoreSlice"
+import { generateArt, loadData, saveOpenAiKey, changeIsProcessing, saveImage } from "@/redux/firestoreSlice"
 import { Formik, useFormik } from "formik"
 
 export default function Dashboard({userToken, email, new_images, openaikey, shortApiKey, isProcessing}){
@@ -51,6 +51,15 @@ export default function Dashboard({userToken, email, new_images, openaikey, shor
         }
       }
     })
+
+    const bookmark = (url, title) =>{
+      document.getElementById("saveButton" + url).disabled = true
+      dispatch(saveImage({
+        userId: userToken,
+        url: url,
+        title: title
+      }))
+    }
     
     useEffect(() => {
         dispatch(loadData(userToken))
@@ -78,9 +87,9 @@ export default function Dashboard({userToken, email, new_images, openaikey, shor
                   <form onSubmit={video_formik.handleSubmit}>
                     <div className="vContainer">
                       <label className="text formText">Upload your file here</label>
-                      <label className="text formText">Please enter a short mp4 clip under 10mb in size</label>
+                      <label className="text formText">Please enter a short mp4 clip under 15mb in size ~ 10s</label>
                       <input className="text formText formInput" id = "file" name="file" type="file" accept="video/mp4" required onChange={(event) => {
-                        if(event.currentTarget.files[0].size > 0 && event.currentTarget.files[0].size < (1024*1024*10)){
+                        if(event.currentTarget.files[0].size > 0 && event.currentTarget.files[0].size < (1024*1024*15)){
                           video_formik.setFieldValue("file", event.currentTarget.files[0])
                         }
                         else{
@@ -106,9 +115,10 @@ export default function Dashboard({userToken, email, new_images, openaikey, shor
                 <div className="vContainer">
                   {new_images.length > 0 && new_images.map((image) => {
                     return(
-                      <div key={image.link} className="vContainer">
+                      <div key={image.link} className="hImageContainer">
+                        <button id={"saveButton" + image.link} className="navButton formText" onClick={() => bookmark(image.link, image.title)}>Save Image</button>
+                        <img className="images" width="400px" src={image.link}></img>
                         <label className="text formText bold">{image.title}</label>
-                        <img width="400px" src={image.link}></img>
                       </div>
                     )
                   })}

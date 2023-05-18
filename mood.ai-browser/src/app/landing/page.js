@@ -1,8 +1,8 @@
 'use client'
 import { viewLogin, viewSignUp } from '@/redux/authSlice'
-import Link from 'next/link'
 import { useDispatch } from 'react-redux'
 import '../css/shared.css'
+
 
 export default function Landing(){
 

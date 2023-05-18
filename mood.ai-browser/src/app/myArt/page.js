@@ -11,11 +11,11 @@ export default function MyArt({image_links, email}){
         <div>
             <MyArtPartial email={email}></MyArtPartial>
             <div className="vContainer">
-                <label className="text subTitle">My Art</label>
+                <label className="text subTitle">My Art Gallery</label>
                 <div className="imgContainer">
                     {image_links.map((image) => {
                         return (
-                            <div className="vContainer">
+                            <div key={image.name} className="vContainer">
                                 <label className="text formText bold">{image.name}</label>
                                 <img width="400px" src={image.url}></img>
                             </div>

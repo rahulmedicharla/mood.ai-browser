@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore"
+import { deleteObject, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const initialState = {
     image_links: [],
@@ -38,17 +39,17 @@ export const loadData = createAsyncThunk("/firestore/loadData", async(userId) =>
         const docRef = doc(firestore, "users", userId)
         const docSnap = await getDoc(docRef)
 
-        const data = {
+        let data = {
             image_links: [],
             openaikey :"",
             shortApiKey: ""
         }
         
         if(docSnap.exists()){
-            data.image_links = docSnap.data().image_links
-            data.openaikey = docSnap.data().openaikey
+            data['image_links'] = docSnap.data().image_links
+            data['openaikey'] = docSnap.data().openaikey
             if(docSnap.data().openaikey.length > 0)
-                data.shortApiKey = docSnap.data().openaikey.substring(0,6).concat("...")
+                data['shortApiKey'] = docSnap.data().openaikey.substring(0,6).concat("...")
         }
 
         return data;
@@ -59,7 +60,57 @@ export const loadData = createAsyncThunk("/firestore/loadData", async(userId) =>
     
 })
 
+export const saveImage = createAsyncThunk("/firestore/saveImage", async(newData) => {
+
+    const storage = getStorage()
+    const firestore = getFirestore()
+    try{
+
+        //get blob of image
+        const encodedURL = encodeURIComponent(newData.url)
+        const corsProxy = "https://api.allorigins.win/raw?url=" + encodedURL
+        const res = await fetch(corsProxy)
+        const blob = await res.blob()
+
+        //save to google storage
+        const storageRef = ref(storage, "images/" + newData.userId + "/" + newData.title + ".png")
+        await uploadBytes(storageRef, blob, {contentType: 'image/png'})
+
+        //get download url
+        const downloadUrl = await getDownloadURL(storageRef)
+
+        //update firestore
+        const docRef = doc(firestore, "users", newData.userId)
+        const docSnap = await getDoc(docRef)
+
+        //create redux instance
+        let returned_data = []
+
+        if(docSnap.exists()){
+            let image_links = docSnap.data().image_links
+            image_links.push({
+                'name': newData.title,
+                'url' : downloadUrl
+            })
+            returned_data = image_links
+
+            await updateDoc(docRef, {
+                image_links: image_links
+            })
+        }
+        
+        return {
+            image_links: returned_data
+        };
+
+    }catch(e){
+        console.log(e)
+    }
+    
+})
+
 export const generateArt = createAsyncThunk("/firestore/generateArt", async(newData) => {
+    const storage = getStorage()
     try{
 
         const res = await fetch("https://mood-ai-vf3fihroqq-ue.a.run.app/moodai/" + newData.downloadUrl + "/" + newData.apikey, {
@@ -71,7 +122,6 @@ export const generateArt = createAsyncThunk("/firestore/generateArt", async(newD
         })
         
         const data = await res.json()
-        console.log(data)
 
         const processed_data = {
             new_images: [],
@@ -79,10 +129,14 @@ export const generateArt = createAsyncThunk("/firestore/generateArt", async(newD
         }
 
         if(data["error"] != ""){
-            alert(datap["error"] + " Please try again")
+            alert(data["error"] + " Please try again")
         }else{
             processed_data["new_images"] = data["image_results"]
         }
+
+        const storageRef = ref(storage, 'recordings/' + newData.userId + '.mp4')
+        await deleteObject(storageRef)
+
 
         return processed_data;
 
@@ -113,6 +167,9 @@ const firestoreSlice = createSlice({
         builder.addCase(generateArt.fulfilled, (state, action) => {
             state.new_images = action.payload.new_images
             state.isProcessing = action.payload.isProcessing
+        })
+        builder.addCase(saveImage.fulfilled,(state,action) => {
+            state.image_links = action.payload.image_links
         })
         
     }
