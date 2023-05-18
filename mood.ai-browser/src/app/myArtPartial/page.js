@@ -1,9 +1,10 @@
 'use client'
-import { logout, viewIsMyArt } from "@/redux/authSlice"
-import { useDispatch } from "react-redux"
+import { logout, selectEmail, viewIsMyArt } from "@/redux/authSlice"
+import { useDispatch, useSelector } from "react-redux"
 import '../css/shared.css'
 
-export default function MyArtPartial({email}){
+export default function MyArtPartial(){
+    const email = useSelector(selectEmail)
     
     const dispatch = useDispatch()
 

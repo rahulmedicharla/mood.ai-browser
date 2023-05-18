@@ -3,15 +3,21 @@ import HomePartial from "../homePartial/page"
 import Image from 'next/image'
 import { useEffect } from "react"
 import {getStorage, ref, uploadBytes, getDownloadURL} from 'firebase/storage'
-import { useDispatch } from "react-redux"
-import { generateArt, loadData, saveOpenAiKey, changeIsProcessing, saveImage } from "@/redux/firestoreSlice"
-import { Formik, useFormik } from "formik"
+import { useDispatch, useSelector } from "react-redux"
+import { generateArt, loadData, saveOpenAiKey, changeIsProcessing, saveImage, selectNewImages, selectOpenAiKey, selectIsProcessing, selectShortApiKey } from "@/redux/firestoreSlice"
+import { useFormik } from "formik"
+import { selectUserToken } from "@/redux/authSlice"
 
-export default function Dashboard({userToken, email, new_images, openaikey, shortApiKey, isProcessing}){
+export default function Dashboard(){
     const storage = getStorage()
     const dispatch = useDispatch()
 
-
+    const userToken = useSelector(selectUserToken)
+    const new_images = useSelector(selectNewImages)
+    const openaikey = useSelector(selectOpenAiKey)
+    const shortApiKey = useSelector(selectShortApiKey)
+    const isProcessing = useSelector(selectIsProcessing)
+  
     const formik = useFormik({
         initialValues:{
             openaikey: '',
@@ -68,7 +74,7 @@ export default function Dashboard({userToken, email, new_images, openaikey, shor
 
     return (
         <div>
-            <HomePartial email={email}></HomePartial>
+            <HomePartial></HomePartial>
             <div>
             </div>
             <div className="hMainContainer">

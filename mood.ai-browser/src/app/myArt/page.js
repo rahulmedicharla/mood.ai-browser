@@ -1,15 +1,17 @@
 'use client'
-import { useDispatch } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import '../css/shared.css'
 import MyArtPartial from "../myArtPartial/page"
+import { selectImageLinks } from "@/redux/firestoreSlice"
 
-export default function MyArt({image_links, email}){
+export default function MyArt(){
+    const image_links = useSelector(selectImageLinks)
     
     const dispatch = useDispatch()
   
     return (
         <div>
-            <MyArtPartial email={email}></MyArtPartial>
+            <MyArtPartial></MyArtPartial>
             <div className="vContainer">
                 <label className="text subTitle">My Art Gallery</label>
                 <div className="imgContainer">
