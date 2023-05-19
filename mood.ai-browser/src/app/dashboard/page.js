@@ -75,7 +75,8 @@ export default function Dashboard(){
     return (
         <div>
             <HomePartial></HomePartial>
-            <div>
+            <div className="vContainer">
+            <label className = "text header">Enter a valid openai key to the left, upload your memory, and click the button to store as art!</label>
             </div>
             <div className="hMainContainer">
                 <form className = "apikeyContainer" onSubmit={formik.handleSubmit}>
