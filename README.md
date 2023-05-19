@@ -1,5 +1,7 @@
 # mood.ai-browser
-This is the public browser to host mood ai
+This is the public browser to host mood ai.
+https://mood-ai-coral.vercel.app
+
 mood ai is a new experimental way to store memories as AI generated art
 Uses next js framework, Google Cloud Authentication, Storage, Firestore, and Cloud Run
 
